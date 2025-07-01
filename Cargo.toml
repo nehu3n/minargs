@@ -17,6 +17,7 @@ keywords = [
     "lightweight",
     "fast",
 ]
+exclude = ["rustfmt.toml", "examples"]
 
 [lib]
 name = "minargs"
