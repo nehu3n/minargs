@@ -1,5 +1,5 @@
 use crate::arg::Arg;
-use std::collections::HashMap;
+use std::{collections::HashMap, process};
 
 #[derive(Clone)]
 pub struct App {
@@ -49,5 +49,35 @@ impl App {
         let cmd = build(cmd);
         self.subcommands.insert(name.to_string(), cmd);
         self
+    }
+
+    fn print_help(&self) {
+        println!("Usage: {} [OPTIONS] [SUBCOMMAND]", self.name);
+        if let Some(desc) = &self.about {
+            println!("\n{}", desc);
+        }
+
+        if !self.args.is_empty() {
+            println!("\nOptions:");
+            for arg in &self.args {
+                let mut flags = String::new();
+                if let Some(s) = arg.short {
+                    flags.push_str(&format!("-{}, ", s));
+                }
+                if let Some(l) = &arg.long {
+                    flags.push_str(&format!("--{}", l));
+                }
+                println!("  {:<15} {}", flags, arg.help.clone().unwrap_or_default());
+            }
+        }
+
+        if !self.subcommands.is_empty() {
+            println!("\nSubcommands:");
+            for (name, sub) in &self.subcommands {
+                println!("  {:<15} {}", name, sub.about.clone().unwrap_or_default());
+            }
+        }
+
+        process::exit(0);
     }
 }
