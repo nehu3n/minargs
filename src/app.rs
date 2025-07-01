@@ -1,5 +1,5 @@
-use crate::arg::Arg;
-use std::{collections::HashMap, process};
+use crate::{arg::Arg, matches::Matches};
+use std::{collections::HashMap, env, process};
 
 #[derive(Clone)]
 pub struct App {
@@ -79,5 +79,57 @@ impl App {
         }
 
         process::exit(0);
+    }
+
+    pub fn parse(self) -> Matches {
+        let mut args = env::args().skip(1);
+        let mut values = HashMap::new();
+        let mut flags = HashMap::new();
+        let mut positional_args =
+            self.args.iter().filter(|a| a.short.is_none() && a.long.is_none()).peekable();
+
+        let mut specs = HashMap::new();
+        for arg in &self.args {
+            if let Some(short) = arg.short {
+                specs.insert(format!("-{}", short), arg);
+            }
+            if let Some(long) = &arg.long {
+                specs.insert(format!("--{}", long), arg);
+            }
+            specs.insert(arg.name.clone(), arg);
+        }
+
+        while let Some(token) = args.next() {
+            if token == "--help" || token == "-h" {
+                self.print_help();
+            }
+
+            if token.starts_with("--") || token.starts_with('-') {
+                if let Some(arg) = specs.get(&token) {
+                    if arg.takes_value {
+                        if let Some(val) = args.next() {
+                            values.insert(arg.name.clone(), val);
+                        }
+                    } else {
+                        flags.insert(arg.name.clone(), true);
+                    }
+                }
+            } else if let Some(pos_arg) = positional_args.next() {
+                values.insert(pos_arg.name.clone(), token);
+            }
+        }
+
+        for arg in &self.args {
+            if !values.contains_key(&arg.name) {
+                if let Some(default) = &arg.default {
+                    values.insert(arg.name.clone(), default.clone());
+                } else if arg.required {
+                    eprintln!("Missing required argument: {}", arg.name);
+                    process::exit(1);
+                }
+            }
+        }
+
+        Matches { values, flags, subcommand: None, sub_matches: None }
     }
 }
