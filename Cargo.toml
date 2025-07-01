@@ -1,0 +1,26 @@
+[package]
+name = "minargs"
+version = "0.1.0"
+edition = "2024"
+authors = ["Nehuén <github.com/nehu3n>"]
+license = "MIT"
+repository = "https://github.com/nehu3n/minargs"
+description = "🚀 Ultra-lightweight, blazing-fast, zero-dependency CLI parser — inspired by Clap."
+readme = "readme.md"
+categories = ["command-line-interface", "command-line", "cli", "parser"]
+keywords = [
+    "cli",
+    "parser",
+    "arguments",
+    "zero-deps",
+    "clap",
+    "lightweight",
+    "fast",
+]
+
+[lib]
+name = "minargs"
+path = "src/lib.rs"
+
+[dependencies]
+# no dependencies allowed!
