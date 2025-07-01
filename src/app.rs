@@ -1,5 +1,5 @@
 use crate::{arg::Arg, matches::Matches};
-use std::{collections::HashMap, env, process};
+use std::{collections::HashMap, env, iter, process};
 
 #[derive(Clone)]
 pub struct App {
@@ -99,12 +99,23 @@ impl App {
             specs.insert(arg.name.clone(), arg);
         }
 
+        let mut subcommand = None;
+        let mut sub_matches = None;
+
         while let Some(token) = args.next() {
             if token == "--help" || token == "-h" {
                 self.print_help();
             }
 
-            if token.starts_with("--") || token.starts_with('-') {
+            if self.subcommands.contains_key(&token) {
+                let sub_app = self.subcommands.get(&token).unwrap();
+                let new_args: Vec<String> = iter::once(token.clone()).chain(args).collect();
+                unsafe { env::set_var("_MINARGS_SUB_REENTER", new_args.join("\n")) };
+                let parsed = sub_app.clone().parse();
+                subcommand = Some(token);
+                sub_matches = Some(Box::new(parsed));
+                break;
+            } else if token.starts_with("--") || token.starts_with('-') {
                 if let Some(arg) = specs.get(&token) {
                     if arg.takes_value {
                         if let Some(val) = args.next() {
@@ -130,6 +141,6 @@ impl App {
             }
         }
 
-        Matches { values, flags, subcommand: None, sub_matches: None }
+        Matches { values, flags, subcommand, sub_matches }
     }
 }
