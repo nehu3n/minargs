@@ -7,7 +7,6 @@ license = "MIT"
 repository = "https://github.com/nehu3n/minargs"
 description = "🚀 Ultra-lightweight, blazing-fast, zero-dependency CLI parser — inspired by Clap."
 readme = "readme.md"
-categories = ["command-line-interface", "command-line", "cli", "parser"]
 keywords = ["cli", "parser", "arguments", "clap", "lightweight"]
 exclude = ["rustfmt.toml", "examples"]
 
