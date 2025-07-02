@@ -1,0 +1,9 @@
+[workspace]
+members = ["clap_demo", "minargs_demo"]
+resolver = "3"
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true
+codegen-units = 1
